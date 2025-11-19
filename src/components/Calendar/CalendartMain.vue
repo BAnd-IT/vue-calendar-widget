@@ -27,11 +27,17 @@ import { ref, computed, watch } from 'vue';
 const emit = defineEmits(['dateSelected']);
 
 const props = defineProps({
-    sharedDate: [String],
+    sharedDate: String,
+    locale: {
+        type: String as () => 'en-EN' | 'ru-RU',
+        default: 'en-EN'
+    }
 });
 
 const selectedDate = ref<Date | null>(null);
 const currentDate = ref(new Date());
+const locale = computed(() => props.locale);
+const firstDayOfWeek = computed(() => locale.value.startsWith('ru') ? 1 : 0);
 
 watch(() => props.sharedDate, (newDate) => {
     if (newDate) {
@@ -45,21 +51,26 @@ watch(() => props.sharedDate, (newDate) => {
     }
 }, { immediate: true });
 
-const currentMonthYear = computed(() => currentDate.value.toLocaleDateString('en-En', {
+const currentMonthYear = computed(() => currentDate.value.toLocaleDateString(locale.value, {
     month: 'short',
     year: 'numeric'
 }));
 
 const weekDays = computed(() => {
     const baseDate = new Date(currentDate.value);
-    baseDate.setDate(baseDate.getDate() - baseDate.getDay());
+
+    const dayOfWeek = baseDate.getDay();
+    const diff = dayOfWeek >= firstDayOfWeek.value
+        ? dayOfWeek - firstDayOfWeek.value
+        : 7 - firstDayOfWeek.value + dayOfWeek;
+    baseDate.setDate(baseDate.getDate() - diff);
 
     const days = [];
     for (let i = 0; i < 7; i++) {
         const date = new Date(baseDate);
         date.setDate(date.getDate() + i);
 
-        const dayName = date.toLocaleDateString('en-En', { weekday: 'short' });
+        const dayName = date.toLocaleDateString(locale.value, { weekday: 'short' });
         days.push(dayName);
     }
 

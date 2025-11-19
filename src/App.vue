@@ -1,7 +1,9 @@
 <template>
     <div class="app">
-        <CalendarMain :sharedDate="sharedDate" @dateSelected="handleDateSelected" />
-        <input class="app-input" type="text" :value="dateSelected" disabled>
+        <CalendarMain :sharedDate="sharedDate" :locale="locale" @dateSelected="handleDateSelected" />
+        <div class="app-info">
+            <input class="app-info__field" name="date" type="text" :value="dateSelected" disabled />
+        </div>
     </div>
 </template>
 
@@ -9,7 +11,8 @@
 import CalendarMain from '@/components/Calendar/CalendartMain.vue';
 import { ref } from 'vue';
 
-const sharedDate = ref<string>('');
+const sharedDate = ref<string>('');  // можно передать строку в формате 'YYYY-MM-DD'
+const locale = ref<'en-EN' | 'ru-RU'>('en-EN'); // локализация изменится, если передать 'ru-RU'
 const dateSelected = ref<string>('');
 
 const handleDateSelected = (date: string) => {
@@ -34,12 +37,16 @@ body {
 .app {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 24px;
     width: 300px;
 
-    &-input {
-        padding: 12px;
-        font-size: 16px;
+    &-info {
+        &__field {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+        }
     }
 }
 </style>
